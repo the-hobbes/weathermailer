@@ -57,60 +57,32 @@ func (mail *Mail) BuildMessage() string {
   return message
 }
 
-func SetFlags() *ConnectionInfo {
-  sender := flag.String(
-    "sender",
-    "phelan.vendeville@gmail.com",
-    "An email address representing the source of the mail")
-  port := flag.String(
-    "port", "465", "The port to use for the SMTP connection. Defaults to 465.")
-  host := flag.String(
-    "host", "smtp.gmail.com", "The sending SMTP server. Defaults to gmail.")
-  password := flag.String(
-    "password", "", "The password associated with the sender.")
-  var destinationList DestinationAddresses
-  flag.Var(
-    &destinationList,
-    "destinations",
-    "A comma separated list of email addresses to send to.")
-  flag.Parse()
-  conn_info := new(ConnectionInfo)
-  conn_info.sender = *sender
-  conn_info.port = *port
-  conn_info.host = *host
-  conn_info.password = *password
-  conn_info.destinations = destinationList
-  return conn_info
-}
-
-func main() {
-  conn_info := SetFlags()
-
+func BuildMail(c *ConnectionInfo, subject, body string) Mail{
   mail := Mail{}
-  mail.senderId = conn_info.sender
-  mail.toIds = conn_info.destinations
+  mail.senderId = c.sender
+  mail.toIds = c.destinations
   if mail.toIds == nil {
     log.Panic("You must set the destination address(es)")
   }
-  mail.subject = "This is the email subject"
-  mail.body = "Blah blah\n\n blah indeed"
+  mail.subject = subject
+  mail.body = body
 
-  messageBody := mail.BuildMessage()
-  smtpServer := SmtpServer{host: conn_info.host, port: conn_info.port}
-  log.Println(smtpServer.host)
+  return mail
+}
 
-  auth := smtp.PlainAuth("", mail.senderId, conn_info.password, smtpServer.host)
+func SendMail(m *Mail, c *ConnectionInfo, s *SmtpServer, messageBody string) {
+  auth := smtp.PlainAuth("", m.senderId, c.password, s.host)
   tlsconfig := &tls.Config{
     InsecureSkipVerify: true,
-    ServerName:         smtpServer.host,
+    ServerName:         s.host,
   }
 
-  conn, err := tls.Dial("tcp", smtpServer.ServerName(), tlsconfig)
+  conn, err := tls.Dial("tcp", s.ServerName(), tlsconfig)
   if err != nil {
     log.Panic(err)
   }
 
-  client, err := smtp.NewClient(conn, smtpServer.host)
+  client, err := smtp.NewClient(conn, s.host)
   if err != nil {
     log.Panic(err)
   }
@@ -120,10 +92,10 @@ func main() {
     log.Panic(err)
   }
   // step 2: add all from and to
-  if err = client.Mail(mail.senderId); err != nil {
+  if err = client.Mail(m.senderId); err != nil {
     log.Panic(err)
   }
-  for _, k := range mail.toIds {
+  for _, k := range m.toIds {
     if err = client.Rcpt(k); err != nil {
       log.Panic(err)
     }
@@ -148,3 +120,44 @@ func main() {
 
   log.Println("Mail sent successfully")
 }
+
+func SetMailFlags() ConnectionInfo {
+  sender := flag.String(
+    "sender",
+    "phelan.vendeville@gmail.com",
+    "An email address representing the source of the mail")
+  port := flag.String(
+    "port", "465", "The port to use for the SMTP connection. Defaults to 465.")
+  host := flag.String(
+    "host", "smtp.gmail.com", "The sending SMTP server. Defaults to gmail.")
+  password := flag.String(
+    "password", "", "The password associated with the sender.")
+  var destinationList DestinationAddresses
+  flag.Var(
+    &destinationList,
+    "destinations",
+    "A comma separated list of email addresses to send to.")
+  flag.Parse()
+  connInfo := ConnectionInfo{}
+  connInfo.sender = *sender
+  connInfo.port = *port
+  connInfo.host = *host
+  connInfo.password = *password
+  connInfo.destinations = destinationList
+
+  return connInfo
+}
+
+// func main() {
+//   connInfo := SetMailFlags()
+
+//   subject := "This is the email subject"
+//   body := "Blah blah\n\n blah indeed"
+//   mail := BuildMail(&connInfo, subject, body)
+//   messageBody := mail.BuildMessage()
+
+//   smtpServer := SmtpServer{host: connInfo.host, port: connInfo.port}
+//   log.Println(smtpServer.host)
+
+//   SendMail(&mail, &connInfo, &smtpServer, messageBody)
+// }
