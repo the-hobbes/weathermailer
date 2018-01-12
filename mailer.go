@@ -57,7 +57,7 @@ func (mail *Mail) BuildMessage() string {
   return message
 }
 
-func BuildMail(c *ConnectionInfo, subject, body string) Mail{
+func BuildMail(c *ConnectionInfo, subject, body string) Mail {
   mail := Mail{}
   mail.senderId = c.sender
   mail.toIds = c.destinations
