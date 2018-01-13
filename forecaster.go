@@ -1,13 +1,13 @@
 package main
 
 import (
-  "fmt"
-  "flag"
-  "io/ioutil"
-  "log"
-  "net/http"
-  "encoding/json"
-  "strconv"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strconv"
 )
 
 type ParsedApiResponse struct {
@@ -17,73 +17,73 @@ type ParsedApiResponse struct {
 	}
 	List []struct {
 		Main struct {
-			Temp float64`json:"temp"`
+			Temp float64 `json:"temp"`
 		} `json:"main"`
 		Weather []struct {
-			Main string `json:"main"`
+			Main        string `json:"main"`
 			Description string `json:"description"`
 		} `json:"Weather"`
 	} `json:"list"`
 }
 
 type MessageBodyContents struct {
-	city					string
-	units					string
-	averageTemp 	string
-	folksySaying 	string
-	weather 			string
+	city         string
+	units        string
+	averageTemp  string
+	folksySaying string
+	weather      string
 }
 
 type ApiInfo struct {
-  city 				string
-  countryCode string
-  apiId  			string
-  units     	string
-  lines				string
+	city        string
+	countryCode string
+	apiId       string
+	units       string
+	lines       string
 }
 
 func SetForecastFlags() ApiInfo {
-  // get city, ISO country code, APPID, units, and number of lines
+	// get city, ISO country code, APPID, units, and number of lines
 	city := flag.String(
-    "city",
-    "vergennes",
-    "The city for which to retrieve the forecast. Defaults to Vergennes VT.")
+		"city",
+		"vergennes",
+		"The city for which to retrieve the forecast. Defaults to Vergennes VT.")
 	countryCode := flag.String(
-    "countrycode",
-    "840",
-    "The ISO country code of the city. Defaults to the United States.")
+		"countrycode",
+		"840",
+		"The ISO country code of the city. Defaults to the United States.")
 	apiId := flag.String(
-    "appid",
-    "",
-    "The appid to use for the openweathermap API calls.")
-  units := flag.String(
-    "units",
-    "imperial",
-    "The temperature units to use. Defaults to imperial.")
-  lines := flag.String(
-  	"lines",
-    "8",
-    "The number of lines to retrieve from the API. Defaults to 8.")
-  flag.Parse()
-  apiInfo := ApiInfo{}
-  apiInfo.city = *city
-  apiInfo.countryCode = *countryCode
-  apiInfo.apiId = *apiId
-  apiInfo.units = *units
-  apiInfo.lines = *lines
+		"appid",
+		"",
+		"The appid to use for the openweathermap API calls.")
+	units := flag.String(
+		"units",
+		"imperial",
+		"The temperature units to use. Defaults to imperial.")
+	lines := flag.String(
+		"lines",
+		"8",
+		"The number of lines to retrieve from the API. Defaults to 8.")
+	flag.Parse()
+	apiInfo := ApiInfo{}
+	apiInfo.city = *city
+	apiInfo.countryCode = *countryCode
+	apiInfo.apiId = *apiId
+	apiInfo.units = *units
+	apiInfo.lines = *lines
 
-  return apiInfo
+	return apiInfo
 }
 
 func MakeOpenWeatheRequest(a *ApiInfo) []byte {
 	url := fmt.Sprintf(
-		"http://api.openweathermap.org/data/2.5/forecast?q=%s,%s&APPID=%s&units=%s&cnt=%s&mode=json", 
-		a.city, 
-		a.countryCode, 
-		a.apiId, 
-		a.units, 
+		"http://api.openweathermap.org/data/2.5/forecast?q=%s,%s&APPID=%s&units=%s&cnt=%s&mode=json",
+		a.city,
+		a.countryCode,
+		a.apiId,
+		a.units,
 		a.lines)
-	
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Panic(err)
@@ -146,7 +146,6 @@ func CreateMessageBody(a *apiInfo, avg, saying string) string {
 	// TODO, using CreateMessageBodyContents()
 	return "S"
 }
-
 
 func main() {
 	apiInfo := SetForecastFlags()
