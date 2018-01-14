@@ -205,7 +205,7 @@ func GetCommonWeather(p *ParsedApiResponse) (string, string) {
 func CreateMessage(
 	a *ApiInfo, weather, description, avg, saying string) (string, string) {
 	// create the body and subject of the email that will be sent
-	city := a.city
+	city := strings.Title(a.city)
 	subject := fmt.Sprintf("Today's weather is: %s", weather)
 	body := fmt.Sprintf("Today in %s, the average temperature will be %s "+
 		"degrees. Expect a %s.\nIn other words, it'll be... %s",
