@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -33,7 +34,7 @@ type MessageBodyContents struct {
 	averageTemp  string
 	folksySaying string
 	weather      string
-  description  string
+	description  string
 }
 
 type ApiInfo struct {
@@ -120,6 +121,7 @@ func ParseOpenWeatherResponse(b []byte) ParsedApiResponse {
 
 func ComputeForecastedAverage(p *ParsedApiResponse) string {
 	// calculate the average of a list of temperatures
+	// TODO: Maybe I should just get today's high here instead of the average...
 	a := p.List
 	sum := float64(0)
 	for _, element := range a {
@@ -130,32 +132,70 @@ func ComputeForecastedAverage(p *ParsedApiResponse) string {
 	return strconv.FormatFloat(avg, 'f', -1, 32)
 }
 
-// func CreateFolksySaying(p *ParsedApiResponse) string {
-//   weather := p.Weather[0].Main  // TODO: get the most frequent category
-//   // loop through each of the weather messages in the proto
-//   // if the type matches the weather,
-//   // then grab a random saying from the repeated sayings field.
-//   // if no match is found, return
-//   // "Pretty weird, 'cause we don't have a folksy saying for that particular
-//   // kinda weather!"
-//   return saying
-// }
+func CreateFolksySaying(w string) string {
+	// loop through each of the weather messages in the proto
+	// if the type matches the weather,
+	// then grab a random saying from the repeated sayings field.
+	// if no match is found, return
+	// "Pretty weird, 'cause we don't have a folksy saying for that particular
+	// kinda weather!"
+	return "placeholder saying"
+}
+
+func PickCommonElement(lst []string) (int, string) {
+	// make a map of k/v pairs to count the # of occurences of each element
+	type CountIndex struct {
+		key          string
+		count, index int
+	}
+	m := make(map[string]*CountIndex) // https://tinyurl.com/y9zv97ne
+	for i, element := range lst {
+		_, present := m[element]
+		if !present {
+			m[element] = &CountIndex{element, 1, i}
+		} else {
+			m[element].count += 1
+		}
+	}
+
+	// sort the weather types by thier count
+	var ss []CountIndex
+	for k, _ := range m {
+		ss = append(ss, CountIndex{k, m[k].count, m[k].index})
+	}
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i].count > ss[j].count
+	})
+
+	// return the index and key of most frequent weather type
+	return ss[0].index, ss[0].key
+}
+
+func GetCommonWeather(p *ParsedApiResponse) (string, string) {
+	weatherTypes := make([]string, len(p.List))
+	weatherDescriptions := make([]string, len(p.List))
+	for i, element := range p.List {
+		for _, subelement := range element.Weather {
+			weatherTypes[i] = subelement.Main
+			weatherDescriptions[i] = subelement.Description
+		}
+	}
+	idx, weather := PickCommonElement(weatherTypes)
+	description := weatherDescriptions[idx]
+
+	return weather, description
+}
 
 func CreateMessage(
-  a *ApiInfo, p *ParsedApiResponse, avg, saying string) string {
+	a *ApiInfo, weather, description, avg, saying string) (string, string) {
 	// create the body and subject of the email that will be sent
-  // short_desc := p.Weather[0].Main
-  // long_desc := p.Weather[0].Description
-  // city := a.city
-  // subject := fmt.Sprintf("Today's weather is: %s", short_desc)
-  // body := fmt.Sprintf("Today in %s, the average temperature will be %d. " +
-  //                     "Expect %d.\nIn other words, it'll be... %s",
-  //                     city, avg, long_desc, saying)
-  for _, element := range p.List {
-		fmt.Println(element)
-	}
-	body := "Placeholder body"
-  return body
+	city := a.city
+	subject := fmt.Sprintf("Today's weather is: %s", weather)
+	body := fmt.Sprintf("Today in %s, the average temperature will be %s "+
+		"degrees. Expect a %s.\nIn other words, it'll be... %s",
+		city, avg, description, saying)
+
+	return subject, body
 }
 
 func main() {
@@ -163,10 +203,12 @@ func main() {
 	response := MakeOpenWeatheRequest(&apiInfo)
 	parsed := ParseOpenWeatherResponse(response)
 	forcastedAverage := ComputeForecastedAverage(&parsed)
-  // saying := CreateFolksySaying(&parsed)
-  saying := "Placeholder saying here."
-	message := CreateMessage(&apiInfo, &parsed, forcastedAverage, saying)
-	fmt.Println(message)
+	weather, description := GetCommonWeather(&parsed)
+	saying := CreateFolksySaying(weather)
+	subject, body := CreateMessage(
+		&apiInfo, weather, description, forcastedAverage, saying)
+	fmt.Println(subject)
+	fmt.Println(body)
 
 	// TODO: make the call to mail...
 }
