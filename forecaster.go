@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type ParsedApiResponse struct {
@@ -89,6 +90,11 @@ func MakeOpenWeatheRequest(a *ApiInfo) []byte {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	if !strings.HasPrefix(resp.Status, "2") {
+		log.Panic("Non-200 response: ", resp.Status)
+	}
+
 	log.Println("openweathermap query completed successfully.")
 
 	defer resp.Body.Close()
@@ -124,28 +130,31 @@ func ComputeForecastedAverage(p *ParsedApiResponse) string {
 	return strconv.FormatFloat(avg, 'f', -1, 32)
 }
 
-func CreateFolksySaying(p *ParsedApiResponse) string {
-  weather := p.Weather[0].Main  // TODO: get the most frequent category
-  // loop through each of the weather messages in the proto
-  // if the type matches the weather,
-  // then grab a random saying from the repeated sayings field.
-  // if no match is found, return
-  // "Pretty weird, 'cause we don't have a folksy saying for that particular
-  // kinda weather!"
-  return saying
-}
+// func CreateFolksySaying(p *ParsedApiResponse) string {
+//   weather := p.Weather[0].Main  // TODO: get the most frequent category
+//   // loop through each of the weather messages in the proto
+//   // if the type matches the weather,
+//   // then grab a random saying from the repeated sayings field.
+//   // if no match is found, return
+//   // "Pretty weird, 'cause we don't have a folksy saying for that particular
+//   // kinda weather!"
+//   return saying
+// }
 
 func CreateMessage(
-  a *apiInfo, p *ParsedApiResponse, avg, saying string) string {
+  a *ApiInfo, p *ParsedApiResponse, avg, saying string) string {
 	// create the body and subject of the email that will be sent
-  short_desc := p.Weather[0].Main
-  long_desc := p.Weather[0].Description
-  city := a.city
-  subject := fmt.Sprintf("Today's weather is: %s", short_desc)
-  body := fmt.Sprintf("Today in %s, the average temperature will be %d. " +
-                      "Expect %d.\nIn other words, it'll be... %s",
-                      city, avg, long_desc, saying)
-
+  // short_desc := p.Weather[0].Main
+  // long_desc := p.Weather[0].Description
+  // city := a.city
+  // subject := fmt.Sprintf("Today's weather is: %s", short_desc)
+  // body := fmt.Sprintf("Today in %s, the average temperature will be %d. " +
+  //                     "Expect %d.\nIn other words, it'll be... %s",
+  //                     city, avg, long_desc, saying)
+  for _, element := range p.List {
+		fmt.Println(element)
+	}
+	body := "Placeholder body"
   return body
 }
 
@@ -154,8 +163,10 @@ func main() {
 	response := MakeOpenWeatheRequest(&apiInfo)
 	parsed := ParseOpenWeatherResponse(response)
 	forcastedAverage := ComputeForecastedAverage(&parsed)
-  saying := CreateFolksySaying(&parsed)
+  // saying := CreateFolksySaying(&parsed)
+  saying := "Placeholder saying here."
 	message := CreateMessage(&apiInfo, &parsed, forcastedAverage, saying)
+	fmt.Println(message)
 
 	// TODO: make the call to mail...
 }
