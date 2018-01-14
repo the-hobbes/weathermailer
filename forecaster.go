@@ -32,6 +32,7 @@ type MessageBodyContents struct {
 	averageTemp  string
 	folksySaying string
 	weather      string
+  description  string
 }
 
 type ApiInfo struct {
@@ -123,28 +124,24 @@ func ComputeForecastedAverage(p *ParsedApiResponse) string {
 	return strconv.FormatFloat(avg, 'f', -1, 32)
 }
 
-func CreateMessageBodyContents(
-	a *apiInfo, temp string, saying, weather string) MessageBodyContents {
-	msg := MessageBodyContents{}
-	msg.city = a.city
-	msg.units = a.units
-	msg.averageTemp = temp
-	msg.folksySaying = saying
-	msg.weather = weather
-
-	return msg
+func CreateFolksySaying(p *ParsedApiResponse) string {
+  weather := p.Weather[0].Main  // TODO: get the most frequent category
+  string saying
+  return saying
 }
 
-func SelectWeatherSaying(p *ParsedApiResponse) string {
-	// logic to select the folksy saying based on weather
-	// TODO
-	return "S"
-}
+func CreateMessage(
+  a *apiInfo, p *ParsedApiResponse, avg, saying string) string {
+	// create the body and subject of the email that will be sent
+  short_desc := p.Weather[0].Main
+  long_desc := p.Weather[0].Description
+  city := a.city
+  subject := fmt.Sprintf("Today's weather is: %s", short_desc)
+  body := fmt.Sprintf("Today in %s, the average temperature will be %d. " +
+                      "Expect %d.\nIn other words, it'll be... %s",
+                      city, avg, long_desc, saying)
 
-func CreateMessageBody(a *apiInfo, avg, saying string) string {
-	// create the body of the email that will be sent
-	// TODO, using CreateMessageBodyContents()
-	return "S"
+  return body
 }
 
 func main() {
@@ -152,8 +149,8 @@ func main() {
 	response := MakeOpenWeatheRequest(&apiInfo)
 	parsed := ParseOpenWeatherResponse(response)
 	forcastedAverage := ComputeForecastedAverage(&parsed)
-	saying := SelectWeatherSaying(&parsed)
-	body := CreateMessageBody(&apiInfo, forcastedAverage, saying)
+  saying := CreateFolksySaying(&parsed)
+	message := CreateMessage(&apiInfo, &parsed, forcastedAverage, saying)
 
 	// TODO: make the call to mail...
 }

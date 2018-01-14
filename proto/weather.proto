@@ -1,0 +1,14 @@
+syntax = "proto3";
+package secrets;
+
+message Weather {
+  string condition = 1;
+  
+}
+
+/*
+  condition = snowy
+  sayings = [say1, say2, etc...]
+
+  condition = calm
+*/
