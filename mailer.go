@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"flag"
 	"fmt"
 	"log"
 	"net/smtp"
@@ -122,43 +121,12 @@ func SendMail(m *Mail, c *ConnectionInfo, s *SmtpServer, messageBody string) {
 	log.Println("Mail sent successfully")
 }
 
-func SetMailFlags() ConnectionInfo {
-	sender := flag.String(
-		"sender",
-		"phelan.vendeville@gmail.com",
-		"An email address representing the source of the mail")
-	port := flag.String(
-		"port", "465", "The port to use for the SMTP connection. Defaults to 465.")
-	host := flag.String(
-		"host", "smtp.gmail.com", "The sending SMTP server. Defaults to gmail.")
-	password := flag.String(
-		"password", "", "The password associated with the sender.")
-	var destinationList DestinationAddresses
-	flag.Var(
-		&destinationList,
-		"destinations",
-		"A comma separated list of email addresses to send to.")
-	flag.Parse()
-	connInfo := ConnectionInfo{}
-	connInfo.sender = *sender
-	connInfo.port = *port
-	connInfo.host = *host
-	connInfo.password = *password
-	connInfo.destinations = destinationList
-
-	return connInfo
-}
-
-func DoMail() {
-  connInfo := SetMailFlags()
-
-  subject := "This is the email subject"
-  body := "Blah blah\n\n blah indeed"
-  mail := BuildMail(&connInfo, subject, body)
+func DoMail(connInfo *ConnectionInfo, subject, body string) {
+  mail := BuildMail(connInfo, subject, body)
   messageBody := mail.BuildMessage()
 
   smtpServer := SmtpServer{host: connInfo.host, port: connInfo.port}
   log.Println(smtpServer.host)
 
-  SendMail(&mail, &connInfo, &smtpServer, messageBody)
+  SendMail(&mail, connInfo, &smtpServer, messageBody)
 }

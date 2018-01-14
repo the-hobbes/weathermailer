@@ -116,7 +116,7 @@ func MakeHots() pb.Weather {
   return p
 }
 
-func GenerateProto() {
+func DoGenerateProto() {
   conditions := &pb.WeatherConditions{}
   t := MakeThunderstorms()
   conditions.Weathers = append(conditions.Weathers, &t)

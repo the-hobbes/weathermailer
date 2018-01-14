@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
+	
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -50,39 +50,6 @@ type ApiInfo struct {
 	lines       string
 }
 
-func SetForecastFlags() ApiInfo {
-	// get city, ISO country code, APPID, units, and number of lines
-	city := flag.String(
-		"city",
-		"vergennes",
-		"The city for which to retrieve the forecast. Defaults to Vergennes VT.")
-	countryCode := flag.String(
-		"countrycode",
-		"840",
-		"The ISO country code of the city. Defaults to the United States.")
-	apiId := flag.String(
-		"appid",
-		"",
-		"The appid to use for the openweathermap API calls.")
-	units := flag.String(
-		"units",
-		"imperial",
-		"The temperature units to use. Defaults to imperial.")
-	lines := flag.String(
-		"lines",
-		"8",
-		"The number of lines to retrieve from the API. Defaults to 8.")
-	flag.Parse()
-	apiInfo := ApiInfo{}
-	apiInfo.city = *city
-	apiInfo.countryCode = *countryCode
-	apiInfo.apiId = *apiId
-	apiInfo.units = *units
-	apiInfo.lines = *lines
-
-	return apiInfo
-}
-
 func MakeOpenWeatheRequest(a *ApiInfo) []byte {
 	url := fmt.Sprintf(
 		"http://api.openweathermap.org/data/2.5/forecast?q=%s,%s&APPID=%s&units=%s&cnt=%s&mode=json",
@@ -126,7 +93,7 @@ func ParseOpenWeatherResponse(b []byte) ParsedApiResponse {
 
 func ComputeForecastedAverage(p *ParsedApiResponse) string {
 	// calculate the average of a list of temperatures
-	// TODO: Maybe I should just get today's high here instead of the average...
+	// TODO: consider using the high temp instead of the average.
 	a := p.List
 	sum := float64(0)
 	for _, element := range a {
@@ -138,11 +105,7 @@ func ComputeForecastedAverage(p *ParsedApiResponse) string {
 }
 
 func CreateFolksySaying(w string) string {
-	// loop through each of the weather messages in the proto
-	// if the type matches the weather,
-	// then grab a random saying from the repeated sayings field.
-	// if no match is found, return
-	
+	// grab a random saying based on weather type from previously generated proto
 	in, err := ioutil.ReadFile(FNAME)
 	if err != nil {
 	        log.Fatalln("Error reading file:", err)
@@ -251,17 +214,14 @@ func CreateMessage(
 	return subject, body
 }
 
-func main() {
-	apiInfo := SetForecastFlags()
-	response := MakeOpenWeatheRequest(&apiInfo)
+func DoForecast(apiInfo *ApiInfo) (string, string) {
+	response := MakeOpenWeatheRequest(apiInfo)
 	parsed := ParseOpenWeatherResponse(response)
 	forcastedAverage := ComputeForecastedAverage(&parsed)
 	weather, description := GetCommonWeather(&parsed)
 	saying := CreateFolksySaying(weather)
 	subject, body := CreateMessage(
-		&apiInfo, weather, description, forcastedAverage, saying)
-	fmt.Println(subject)
-	fmt.Println(body)
+		apiInfo, weather, description, forcastedAverage, saying)
 
-	// TODO: make the call to mail...
+	return subject, body
 }
