@@ -1,14 +1,34 @@
 syntax = "proto3";
-package secrets;
+package weather;
+
 
 message Weather {
-  string condition = 1;
+  enum WeatherType {
+    // http://openweathermap.org/weather-conditions
+    THUNDERSTORM = 0;
+    DRIZZLE = 1;
+    RAIN = 2;
+    SNOW = 3;
+    ATMOSPHERE = 4;
+    CLEAR = 5;
+    CLOUDS = 6;
+    EXTREME = 7;
+    ADDITIONAL = 8;
+    COLD = 9;
+    HOT = 10;
+  }
+  
+  message FolksySaying {
+    string saying = 1;
+    WeatherType type = 2;
+  }
+
+  repeated FolksySaying sayings = 1;
   
 }
 
-/*
-  condition = snowy
-  sayings = [say1, say2, etc...]
+message WeatherConditions {
+  repeated Weather weathers = 1;
+  
+}
 
-  condition = calm
-*/

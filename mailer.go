@@ -149,16 +149,16 @@ func SetMailFlags() ConnectionInfo {
 	return connInfo
 }
 
-// func main() {
-//   connInfo := SetMailFlags()
+func Mail() {
+  connInfo := SetMailFlags()
 
-//   subject := "This is the email subject"
-//   body := "Blah blah\n\n blah indeed"
-//   mail := BuildMail(&connInfo, subject, body)
-//   messageBody := mail.BuildMessage()
+  subject := "This is the email subject"
+  body := "Blah blah\n\n blah indeed"
+  mail := BuildMail(&connInfo, subject, body)
+  messageBody := mail.BuildMessage()
 
-//   smtpServer := SmtpServer{host: connInfo.host, port: connInfo.port}
-//   log.Println(smtpServer.host)
+  smtpServer := SmtpServer{host: connInfo.host, port: connInfo.port}
+  log.Println(smtpServer.host)
 
-//   SendMail(&mail, &connInfo, &smtpServer, messageBody)
-// }
+  SendMail(&mail, &connInfo, &smtpServer, messageBody)
+}

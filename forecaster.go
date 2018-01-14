@@ -126,7 +126,12 @@ func ComputeForecastedAverage(p *ParsedApiResponse) string {
 
 func CreateFolksySaying(p *ParsedApiResponse) string {
   weather := p.Weather[0].Main  // TODO: get the most frequent category
-  string saying
+  // loop through each of the weather messages in the proto
+  // if the type matches the weather,
+  // then grab a random saying from the repeated sayings field.
+  // if no match is found, return
+  // "Pretty weird, 'cause we don't have a folksy saying for that particular
+  // kinda weather!"
   return saying
 }
 
