@@ -7,11 +7,13 @@ import (
   pb "github.com/weathermailer/proto"
 )
 
+const FNAME = "proto/conditions.pb"
+
 func MakeThunderstorms() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
           {Saying: "Blow’n fit to make a rabbit cry",
-          Type: pb.Weather_THUNDERSTORM},
+          Kind: pb.Weather_THUNDERSTORM},
         },
   }
   return p
@@ -20,7 +22,7 @@ func MakeThunderstorms() pb.Weather {
 func MakeDrizzles() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Drizzly-drazzly", Type: pb.Weather_DRIZZLE},
+          {Saying: "Drizzly-drazzly", Kind: pb.Weather_DRIZZLE},
         },
   }
   return p
@@ -29,7 +31,7 @@ func MakeDrizzles() pb.Weather {
 func MakeRains() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Rain placeholder", Type: pb.Weather_RAIN},
+          {Saying: "Rain placeholder", Kind: pb.Weather_RAIN},
         },
   }
   return p
@@ -38,7 +40,7 @@ func MakeRains() pb.Weather {
 func MakeSnows() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Snow placeholder", Type: pb.Weather_SNOW},
+          {Saying: "Snow placeholder", Kind: pb.Weather_SNOW},
         },
   }
   return p
@@ -47,7 +49,7 @@ func MakeSnows() pb.Weather {
 func MakeAtmospheres() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Capful of wind", Type: pb.Weather_ATMOSPHERE},
+          {Saying: "Capful of wind", Kind: pb.Weather_ATMOSPHERE},
         },
   }
   return p
@@ -56,7 +58,7 @@ func MakeAtmospheres() pb.Weather {
 func MakeClears() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Clear placeholder", Type: pb.Weather_CLEAR},
+          {Saying: "Clear placeholder", Kind: pb.Weather_CLEAR},
         },
   }
   return p
@@ -65,7 +67,7 @@ func MakeClears() pb.Weather {
 func MakeClouds() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Clouds placeholder", Type: pb.Weather_CLOUDS},
+          {Saying: "Clouds placeholder", Kind: pb.Weather_CLOUDS},
         },
   }
   return p
@@ -74,8 +76,8 @@ func MakeClouds() pb.Weather {
 func MakeExtremes() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Extremes placeholder", Type: pb.Weather_EXTREME},
-          {Saying: "Thundestorm quote 2 here", Type: pb.Weather_EXTREME},
+          {Saying: "Extremes placeholder", Kind: pb.Weather_EXTREME},
+          {Saying: "Thundestorm quote 2 here", Kind: pb.Weather_EXTREME},
         },
   }
   return p
@@ -84,8 +86,8 @@ func MakeExtremes() pb.Weather {
 func MakeAdditionals() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "Additionals placeholder", Type: pb.Weather_ADDITIONAL},
-          {Saying: "Thundestorm quote 2 here", Type: pb.Weather_ADDITIONAL},
+          {Saying: "Additionals placeholder", Kind: pb.Weather_ADDITIONAL},
+          {Saying: "Thundestorm quote 2 here", Kind: pb.Weather_ADDITIONAL},
         },
   }
   return p
@@ -95,11 +97,11 @@ func MakeColds() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
           {Saying: "Hasn't been this cold since eighteen-hundred-and-froze-" +
-                   "to-death", Type: pb.Weather_COLD},
+                   "to-death", Kind: pb.Weather_COLD},
           {Saying: "It's so cold, milk cows gave icicles",
-          Type: pb.Weather_COLD},
+          Kind: pb.Weather_COLD},
           {Saying: "Colder than a witches tit in a brass bra",
-          Type: pb.Weather_COLD},
+          Kind: pb.Weather_COLD},
         },
   }
   return p
@@ -108,14 +110,13 @@ func MakeColds() pb.Weather {
 func MakeHots() pb.Weather {
   p := pb.Weather{
         Sayings: []*pb.Weather_FolksySaying {
-          {Saying: "As snug as a bug in a rug", Type: pb.Weather_HOT},
+          {Saying: "As snug as a bug in a rug", Kind: pb.Weather_HOT},
         },
   }
   return p
 }
 
 func GenerateProto() {
-  fname := "proto/conditions.pb"
   conditions := &pb.WeatherConditions{}
   t := MakeThunderstorms()
   conditions.Weathers = append(conditions.Weathers, &t)
@@ -144,7 +145,7 @@ func GenerateProto() {
   if err != nil {
         log.Fatalln("Failed to encode conditions:", err)
   }
-  if err := ioutil.WriteFile(fname, out, 0644); err != nil {
+  if err := ioutil.WriteFile(FNAME, out, 0644); err != nil {
         log.Fatalln("Failed to write conditions:", err)
   }
 }

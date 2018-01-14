@@ -6,10 +6,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/golang/protobuf/proto"
+  pb "github.com/weathermailer/proto"
 )
 
 type ParsedApiResponse struct {
@@ -137,9 +142,57 @@ func CreateFolksySaying(w string) string {
 	// if the type matches the weather,
 	// then grab a random saying from the repeated sayings field.
 	// if no match is found, return
-	// "Pretty weird, 'cause we don't have a folksy saying for that particular
-	// kinda weather!"
-	return "placeholder saying"
+	
+	in, err := ioutil.ReadFile(FNAME)
+	if err != nil {
+	        log.Fatalln("Error reading file:", err)
+	}
+	weather := &pb.WeatherConditions{}
+	if err := proto.Unmarshal(in, weather); err != nil {
+	        log.Fatalln("Failed to parse address book:", err)
+	}
+
+	var kind pb.Weather_WeatherKind
+	switch w {
+		case "Thunderstorm":
+			kind = pb.Weather_THUNDERSTORM
+		case "Drizzle":
+			kind = pb.Weather_DRIZZLE
+		case "Rain":
+			kind = pb.Weather_RAIN
+		case "Snow":
+			kind = pb.Weather_SNOW
+		case "Atmosphere":
+			kind = pb.Weather_ATMOSPHERE
+		case "Clear":
+			kind = pb.Weather_CLEAR
+		case "Clouds":
+			kind = pb.Weather_CLOUDS
+		case "Extreme":
+			kind = pb.Weather_EXTREME
+		case "Additional":
+			kind = pb.Weather_ADDITIONAL
+		case "Cold":
+			kind = pb.Weather_COLD
+		case "Hot":
+			kind = pb.Weather_HOT
+		default:
+			return "Pretty weird, 'cause we don't have a folksy saying for that " +
+						 "particular kinda weather!"
+		}
+
+	var sayings []string
+
+	for _, w := range weather.Weathers {
+		if w.Sayings[0].Kind == kind {
+			sayings = append(sayings, w.Sayings[0].Saying)
+		}
+	}
+	rand.Seed(time.Now().Unix())
+	saying := sayings[rand.Intn(len(sayings))]
+
+
+	return saying
 }
 
 func PickCommonElement(lst []string) (int, string) {

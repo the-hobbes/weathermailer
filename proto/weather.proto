@@ -3,7 +3,7 @@ package weather;
 
 
 message Weather {
-  enum WeatherType {
+  enum WeatherKind {
     // http://openweathermap.org/weather-conditions
     THUNDERSTORM = 0;
     DRIZZLE = 1;
@@ -14,13 +14,14 @@ message Weather {
     CLOUDS = 6;
     EXTREME = 7;
     ADDITIONAL = 8;
+    // custom
     COLD = 9;
     HOT = 10;
   }
   
   message FolksySaying {
     string saying = 1;
-    WeatherType type = 2;
+    WeatherKind kind = 2;
   }
 
   repeated FolksySaying sayings = 1;
