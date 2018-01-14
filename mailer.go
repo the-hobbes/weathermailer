@@ -149,7 +149,7 @@ func SetMailFlags() ConnectionInfo {
 	return connInfo
 }
 
-func Mail() {
+func DoMail() {
   connInfo := SetMailFlags()
 
   subject := "This is the email subject"
