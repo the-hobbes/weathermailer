@@ -5,26 +5,26 @@
 
 
 Drizzly-drazzly
-
-
-Rain placeholder
+1
+/
++it’s raining pitchforks and barns shovels
 
 
 Snow placeholder
-
-
-Capful of wind
+"
+ 
+it’s as thick as marsh mud
 
 
 Clear placeholder
 
 
 Clouds placeholder
-8
-
-Extremes placeholder
-
-Thundestorm quote 2 here
+W
+A
+=It blows so hard it takes two men to hold one man’s hair on
+
+capful of wind
 ;
 
 Additionals placeholder
@@ -37,6 +37,15 @@ C
 $It's so cold, milk cows gave icicles	
 ,
 (Colder than a witches tit in a brass bra	
-
+�
 
 As snug as a bug in a rug
+
+$
+ Hotter’n love in hayin’ time
+
+
+It’s some hot today
+
+ 
+Hotter than a Methodist hell

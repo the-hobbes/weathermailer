@@ -122,8 +122,8 @@ func SendMail(m *Mail, c *ConnectionInfo, s *SmtpServer, messageBody string) {
 }
 
 func DoMail(connInfo *ConnectionInfo, subject, body string) {
-  mail := BuildMail(connInfo, subject, body)
-  messageBody := mail.BuildMessage()
-  smtpServer := SmtpServer{host: connInfo.host, port: connInfo.port}
-  SendMail(&mail, connInfo, &smtpServer, messageBody)
+	mail := BuildMail(connInfo, subject, body)
+	messageBody := mail.BuildMessage()
+	smtpServer := SmtpServer{host: connInfo.host, port: connInfo.port}
+	SendMail(&mail, connInfo, &smtpServer, messageBody)
 }

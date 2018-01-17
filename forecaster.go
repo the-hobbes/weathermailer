@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	
+
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-  pb "github.com/weathermailer/proto"
+	pb "github.com/weathermailer/proto"
 )
 
 type ParsedApiResponse struct {
@@ -108,41 +108,41 @@ func CreateFolksySaying(w string) string {
 	// grab a random saying based on weather type from previously generated proto
 	in, err := ioutil.ReadFile(FNAME)
 	if err != nil {
-	        log.Fatalln("Error reading file:", err)
+		log.Fatalln("Error reading file:", err)
 	}
 	weather := &pb.WeatherConditions{}
 	if err := proto.Unmarshal(in, weather); err != nil {
-	        log.Fatalln("Failed to parse address book:", err)
+		log.Fatalln("Failed to parse address book:", err)
 	}
 
 	var kind pb.Weather_WeatherKind
 	switch w {
-		case "Thunderstorm":
-			kind = pb.Weather_THUNDERSTORM
-		case "Drizzle":
-			kind = pb.Weather_DRIZZLE
-		case "Rain":
-			kind = pb.Weather_RAIN
-		case "Snow":
-			kind = pb.Weather_SNOW
-		case "Atmosphere":
-			kind = pb.Weather_ATMOSPHERE
-		case "Clear":
-			kind = pb.Weather_CLEAR
-		case "Clouds":
-			kind = pb.Weather_CLOUDS
-		case "Extreme":
-			kind = pb.Weather_EXTREME
-		case "Additional":
-			kind = pb.Weather_ADDITIONAL
-		case "Cold":
-			kind = pb.Weather_COLD
-		case "Hot":
-			kind = pb.Weather_HOT
-		default:
-			return "Pretty weird, 'cause we don't have a folksy saying for that " +
-						 "particular kinda weather!"
-		}
+	case "Thunderstorm":
+		kind = pb.Weather_THUNDERSTORM
+	case "Drizzle":
+		kind = pb.Weather_DRIZZLE
+	case "Rain":
+		kind = pb.Weather_RAIN
+	case "Snow":
+		kind = pb.Weather_SNOW
+	case "Atmosphere":
+		kind = pb.Weather_ATMOSPHERE
+	case "Clear":
+		kind = pb.Weather_CLEAR
+	case "Clouds":
+		kind = pb.Weather_CLOUDS
+	case "Extreme":
+		kind = pb.Weather_EXTREME
+	case "Additional":
+		kind = pb.Weather_ADDITIONAL
+	case "Cold":
+		kind = pb.Weather_COLD
+	case "Hot":
+		kind = pb.Weather_HOT
+	default:
+		return "Pretty weird, 'cause we don't have a folksy saying for that " +
+			"particular kinda weather!"
+	}
 
 	var sayings []string
 
@@ -153,7 +153,6 @@ func CreateFolksySaying(w string) string {
 	}
 	rand.Seed(time.Now().Unix())
 	saying := sayings[rand.Intn(len(sayings))]
-
 
 	return saying
 }

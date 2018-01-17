@@ -1,6 +1,6 @@
 package main
 
-/* 
+/*
 	./weathermailer \
 		-appid $APPID \
 		-password $PASSWORD \
@@ -11,7 +11,7 @@ import (
 	"flag"
 )
 
-func GetFlags() (ApiInfo, ConnectionInfo) {
+func GetFlags() (ApiInfo, ConnectionInfo, bool) {
 	// api request flags
 	city := flag.String(
 		"city",
@@ -45,16 +45,27 @@ func GetFlags() (ApiInfo, ConnectionInfo) {
 		"host", "smtp.gmail.com", "The sending SMTP server. Defaults to gmail.")
 	password := flag.String(
 		"password", "", "The password associated with the sender.")
-		var destinationList DestinationAddresses
+	var destinationList DestinationAddresses
 	flag.Var(
 		&destinationList,
 		"destinations",
 		"A comma separated list of email addresses to send to.")
 
+	// generator flags
+	generate := flag.Bool(
+		"generate_proto",
+		false,
+		"Whether or not to generate the proto and proto library.")
+
 	flag.Parse()
+	apiInfo := ApiInfo{}
+	connInfo := ConnectionInfo{}
+
+	if *generate == true {
+		return apiInfo, connInfo, *generate
+	}
 
 	// set api info struct
-	apiInfo := ApiInfo{}
 	apiInfo.city = *city
 	apiInfo.countryCode = *countryCode
 	apiInfo.apiId = *apiId
@@ -62,22 +73,22 @@ func GetFlags() (ApiInfo, ConnectionInfo) {
 	apiInfo.lines = *lines
 
 	// set connection info struct
-	connInfo := ConnectionInfo{}
 	connInfo.sender = *sender
 	connInfo.port = *port
 	connInfo.host = *host
 	connInfo.password = *password
 	connInfo.destinations = destinationList
 
-	return apiInfo, connInfo
+	return apiInfo, connInfo, false
 }
 
 func main() {
-	// DoGenerateProto()
-	apiInfo, connInfo := GetFlags()
-	subject, body := DoForecast(&apiInfo)
-	DoMail(&connInfo, subject, body)
-
-	// TODO: Add a flag to trigger DoGenerateProto()
-	// instead of commandline flags, add a config script
+	apiInfo, connInfo, generate := GetFlags()
+	if generate {
+		DoGenerateProto()
+	} else {
+		subject, body := DoForecast(&apiInfo)
+		DoMail(&connInfo, subject, body)
+	}
+	// TODO: instead of commandline flags, add a config script
 }
